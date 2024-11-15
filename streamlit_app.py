@@ -134,13 +134,13 @@ for n in range(df.shape[0]):
     for i in list(df.columns):
         setup_dict.update({i :list(df[n:n+1].to_dict().get(i).values())[0]})
         scoring_request = {'data' : setup_dict}
-        
-        
-    response = requests.post("https://demo2.dominodatalab.com:443/models/63f889a99fb0fd477f3a599e/latest/model",
+
+    response = requests.post("https://se-demo.domino.tech:443/models/67374916191e8f19a5d0e2c4/latest/model",
     auth=(
-        "B0HjcRkGR9YqicRzxRIN08rc2hor1vsZdPoR5mFF1BvvbR1iFRZZKRBgb8RWvGNv",
-        "B0HjcRkGR9YqicRzxRIN08rc2hor1vsZdPoR5mFF1BvvbR1iFRZZKRBgb8RWvGNv"
+        "C7uFLi3lCr3DJZByin7z5mRGSU0OhEuZBzSQgUSYXTDWPq87330cSdsbWXAwnEGG",
+        "C7uFLi3lCr3DJZByin7z5mRGSU0OhEuZBzSQgUSYXTDWPq87330cSdsbWXAwnEGG"
     ),
+
         json=scoring_request
     )
     results.append(response.json().get('result'))
