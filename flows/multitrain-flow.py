@@ -1,4 +1,4 @@
-# pyflyte run --remote ./flows/model_workflow.py model_training_workflow
+# pyflyte run --remote ./mnt/code/flows/multitrain-flow/multitrain-flow.py model_training_workflow
 
 
 from flytekit import workflow
@@ -16,7 +16,7 @@ hardware_tier_name = "Small"
 
 # Enter the name of your project's default dataset. 
 # Ensure you have taken a snapshot of that dataset in order for it to be mounted to your flow tasks.
-dataset_name="Testing_Credit_Workshop"
+dataset_name="Demo-Credit-Default-Model "
 snapshot_number=1
 
 
@@ -36,7 +36,7 @@ def model_training_workflow():
     # Launch sklearn logistic regression training
     sklearn_log_reg_results = run_domino_job_task(
         flyte_task_name="Train Sklearn LogReg",
-        command="python flows/sklearn_log_reg_train.py",
+        command="python /mnt/code/flows/multitrain-flow/sklearn_log_reg_train.py",
         output_specs=[Output(name="model", type=sklearn_log_regArtifact.File(name="model.pkl"))],
         use_project_defaults_for_omitted=True,
         environment_name=environment_name,
@@ -49,7 +49,7 @@ def model_training_workflow():
     # Launch H2O model training
     h2o_results = run_domino_job_task(
         flyte_task_name="Train H2O Model",
-        command="python flows/h2o_model_train.py",
+        command="python /mnt/code/flows/multitrain-flow/h2o_model_train.py",
         output_specs=[Output(name="model", type=h2oArtifact.File(name="model.pkl"))],
         use_project_defaults_for_omitted=True,
         environment_name=environment_name,
@@ -62,7 +62,7 @@ def model_training_workflow():
     # Launch sklearn random forest training
     sklearn_rf_results = run_domino_job_task(
         flyte_task_name="Train Sklearn RF",
-        command="python flows/sklearn_RF_train.py",
+        command="python /mnt/code/flows/multitrain-flow/sklearn_RF_train.py",
         output_specs=[Output(name="model", type=sklearn_rfArtifact.File(name="model.pkl"))],
         use_project_defaults_for_omitted=True,
         environment_name=environment_name,
@@ -75,7 +75,7 @@ def model_training_workflow():
     # Launch XGBoost model training
     xgboost_results = run_domino_job_task(
         flyte_task_name="Train XGBoost",
-        command="python flows/xgb_model_train.py",
+        command="python /mnt/code/flows/multitrain-flow/xgb_model_train.py",
         output_specs=[Output(name="model", type=xgboostArtifact.File(name="model.pkl"))],
         use_project_defaults_for_omitted=True,
         environment_name=environment_name,
