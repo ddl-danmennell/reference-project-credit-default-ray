@@ -1,4 +1,4 @@
-# pyflyte run --remote ./mnt/code/flows/multitrain-flow/multitrain-flow.py model_training_workflow
+# pyflyte run --remote /mnt/code/flows/multitrain-flow/multitrain-flow.py model_training_workflow
 
 
 from flytekit import workflow
@@ -16,7 +16,7 @@ hardware_tier_name = "Small"
 
 # Enter the name of your project's default dataset. 
 # Ensure you have taken a snapshot of that dataset in order for it to be mounted to your flow tasks.
-dataset_name="Demo-Credit-Default-Model "
+dataset_name="Demo-Credit-Default-Model"
 snapshot_number=1
 
 
