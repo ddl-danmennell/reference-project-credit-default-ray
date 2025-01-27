@@ -136,7 +136,7 @@ for n in range(df.shape[0]):
         scoring_request = {'data' : setup_dict}
 
     response = requests.post("https://se-demo.domino.tech:443/models/67374916191e8f19a5d0e2c4/latest/model",
-    auth=(
+        auth=(
         "C7uFLi3lCr3DJZByin7z5mRGSU0OhEuZBzSQgUSYXTDWPq87330cSdsbWXAwnEGG",
         "C7uFLi3lCr3DJZByin7z5mRGSU0OhEuZBzSQgUSYXTDWPq87330cSdsbWXAwnEGG"
     ),
