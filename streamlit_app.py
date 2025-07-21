@@ -135,10 +135,10 @@ for n in range(df.shape[0]):
         setup_dict.update({i :list(df[n:n+1].to_dict().get(i).values())[0]})
         scoring_request = {'data' : setup_dict}
 
-    response = requests.post("https://se-demo.domino.tech:443/models/67374916191e8f19a5d0e2c4/latest/model",
+    response = requests.post("https://se-demo.domino.tech:443/models/687e7870f9ac5a56add94a77/latest/model",     
         auth=(
-        "C7uFLi3lCr3DJZByin7z5mRGSU0OhEuZBzSQgUSYXTDWPq87330cSdsbWXAwnEGG",
-        "C7uFLi3lCr3DJZByin7z5mRGSU0OhEuZBzSQgUSYXTDWPq87330cSdsbWXAwnEGG"
+        "ytpUHQtFhUfOpvTfLRCY4kXe10UxxC3ARo8nRUAGiwiRo4y1xXxQgFFQpH1BtDPy",
+        "ytpUHQtFhUfOpvTfLRCY4kXe10UxxC3ARo8nRUAGiwiRo4y1xXxQgFFQpH1BtDPy"
     ),
 
         json=scoring_request
