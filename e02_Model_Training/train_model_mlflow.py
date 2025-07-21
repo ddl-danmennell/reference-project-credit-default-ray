@@ -370,7 +370,7 @@ def train(ray_actors,
                 "best_model",
                 signature=signature,
                 input_example=sample_input,
-                registered_model_name=f"{experiment_name}_best_model"
+                registered_model_name=f"{experiment_name}"
             )
             
             # Make predictions on test data
