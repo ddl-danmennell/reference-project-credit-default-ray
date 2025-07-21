@@ -47,7 +47,7 @@ def setup_mlflow(mlflow_server_url="http://localhost:8768"):
                 print(f"Using provided MLFlow server: {mlflow_server_url}")
         
         mlflow.set_tracking_uri(mlflow_server_url)
-        experiment_name = f"Credit_Model_Training_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        experiment_name = f"Credit_Model_Training"
         
         try:
             experiment_id = mlflow.create_experiment(experiment_name)
