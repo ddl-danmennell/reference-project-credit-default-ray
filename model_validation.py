@@ -21,6 +21,13 @@ from sklearn.metrics import (
 from sklearn.calibration import calibration_curve
 import warnings
 warnings.filterwarnings('ignore')
+from matplotlib.backends.backend_pdf import PdfPages
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image as RLImage, Table, TableStyle, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+import io
 
 def load_model_and_data():
     """Load the XGBoost model and test data"""
@@ -209,6 +216,200 @@ def create_visualizations(model, X_test, y_test, y_pred_proba, report_dir):
         plt.savefig(f'{report_dir}/feature_importance.png', dpi=300, bbox_inches='tight')
         plt.close()
 
+def generate_pdf_report(model, X_test, y_test, y_pred_proba, report_dir):
+    """Generate PDF report with embedded images"""
+    y_pred = (y_pred_proba >= 0.5).astype(int)
+    
+    # Calculate metrics
+    metrics = calculate_metrics(y_test, y_pred, y_pred_proba)
+    
+    # Threshold analysis
+    threshold_df = analyze_threshold_performance(y_test, y_pred_proba)
+    
+    # Business impact analysis
+    distribution, tier_performance, bad_rates = analyze_business_impact(y_test, y_pred_proba)
+    
+    # Create PDF document
+    pdf_filename = f'{report_dir}/validation_report.pdf'
+    doc = SimpleDocTemplate(pdf_filename, pagesize=A4)
+    styles = getSampleStyleSheet()
+    story = []
+    
+    # Custom styles
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=18,
+        spaceAfter=30,
+        alignment=1  # Center alignment
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=14,
+        spaceBefore=12,
+        spaceAfter=6
+    )
+    
+    subheading_style = ParagraphStyle(
+        'CustomSubHeading',
+        parent=styles['Heading3'],
+        fontSize=12,
+        spaceBefore=8,
+        spaceAfter=4
+    )
+    
+    # Title
+    story.append(Paragraph("Credit Risk Model Validation Report", title_style))
+    story.append(Paragraph(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
+    story.append(Spacer(1, 20))
+    
+    # Model Information
+    story.append(Paragraph("Model Information", heading_style))
+    model_info = [
+        ["Model File:", "tune_best.xgb"],
+        ["Model Type:", "XGBoost Binary Classifier"],
+        ["Test Set Size:", f"{len(y_test)} samples"],
+        ["Class Distribution:", f"Good Credit: {dict(y_test.value_counts())[1]}, Bad Credit: {dict(y_test.value_counts())[0]}"]
+    ]
+    model_table = Table(model_info, colWidths=[2*inch, 3*inch])
+    model_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    story.append(model_table)
+    story.append(Spacer(1, 20))
+    
+    # Performance Metrics
+    story.append(Paragraph("Overall Performance Metrics", heading_style))
+    
+    story.append(Paragraph("Classification Metrics", subheading_style))
+    metrics_data = [
+        ["Accuracy", f"{metrics['accuracy']:.4f}"],
+        ["Balanced Accuracy", f"{metrics['balanced_accuracy']:.4f}"],
+        ["Precision", f"{metrics['precision']:.4f}"],
+        ["Recall", f"{metrics['recall']:.4f}"],
+        ["F1-Score", f"{metrics['f1_score']:.4f}"],
+        ["Matthews Correlation Coefficient", f"{metrics['matthews_corrcoef']:.4f}"]
+    ]
+    metrics_table = Table(metrics_data, colWidths=[2.5*inch, 1.5*inch])
+    metrics_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.lightblue),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    story.append(metrics_table)
+    story.append(Spacer(1, 15))
+    
+    story.append(Paragraph("Probabilistic Metrics", subheading_style))
+    prob_metrics_data = [
+        ["ROC-AUC", f"{metrics['roc_auc']:.4f}"],
+        ["Average Precision", f"{metrics['average_precision']:.4f}"],
+        ["Log Loss", f"{metrics['log_loss']:.4f}"]
+    ]
+    prob_metrics_table = Table(prob_metrics_data, colWidths=[2.5*inch, 1.5*inch])
+    prob_metrics_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.lightgreen),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    story.append(prob_metrics_table)
+    story.append(PageBreak())
+    
+    # Business Impact Analysis
+    story.append(Paragraph("Business Impact Analysis", heading_style))
+    
+    story.append(Paragraph("Decision Distribution", subheading_style))
+    distribution_data = [
+        ["Decision Tier", "Count", "Percentage", "Bad Rate"],
+        ["Approved (≥0.6)", str(distribution['approved']), f"{distribution['approved']/len(y_test)*100:.1f}%", f"{bad_rates['approved_bad_rate']:.2%}"],
+        ["Manual Review (0.4-0.6)", str(distribution['manual_review']), f"{distribution['manual_review']/len(y_test)*100:.1f}%", f"{bad_rates['manual_review_bad_rate']:.2%}"],
+        ["Denied (<0.4)", str(distribution['denied']), f"{distribution['denied']/len(y_test)*100:.1f}%", f"{bad_rates['denied_bad_rate']:.2%}"]
+    ]
+    distribution_table = Table(distribution_data, colWidths=[1.8*inch, 1*inch, 1.2*inch, 1*inch])
+    distribution_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    story.append(distribution_table)
+    story.append(Spacer(1, 20))
+    
+    # Add visualizations
+    story.append(Paragraph("Model Performance Visualizations", heading_style))
+    
+    # ROC Curve
+    story.append(Paragraph("ROC Curve", subheading_style))
+    roc_img = RLImage(f'{report_dir}/roc_curve.png', width=4*inch, height=3*inch)
+    story.append(roc_img)
+    story.append(Spacer(1, 10))
+    
+    # Precision-Recall Curve
+    story.append(Paragraph("Precision-Recall Curve", subheading_style))
+    pr_img = RLImage(f'{report_dir}/pr_curve.png', width=4*inch, height=3*inch)
+    story.append(pr_img)
+    story.append(PageBreak())
+    
+    # Confusion Matrix
+    story.append(Paragraph("Confusion Matrix", subheading_style))
+    cm_img = RLImage(f'{report_dir}/confusion_matrix.png', width=4*inch, height=3*inch)
+    story.append(cm_img)
+    story.append(Spacer(1, 10))
+    
+    # Score Distribution
+    story.append(Paragraph("Score Distribution", subheading_style))
+    score_img = RLImage(f'{report_dir}/score_distribution.png', width=5*inch, height=3*inch)
+    story.append(score_img)
+    story.append(PageBreak())
+    
+    # Feature Importance
+    story.append(Paragraph("Feature Importance", subheading_style))
+    feat_img = RLImage(f'{report_dir}/feature_importance.png', width=5*inch, height=4*inch)
+    story.append(feat_img)
+    story.append(Spacer(1, 10))
+    
+    # Calibration Plot
+    story.append(Paragraph("Calibration Plot", subheading_style))
+    cal_img = RLImage(f'{report_dir}/calibration_plot.png', width=4*inch, height=3*inch)
+    story.append(cal_img)
+    story.append(PageBreak())
+    
+    # Recommendations
+    story.append(Paragraph("Recommendations", heading_style))
+    recommendations = [
+        f"1. The model shows {'strong' if metrics['roc_auc'] > 0.8 else 'moderate'} discriminatory power with an AUC of {metrics['roc_auc']:.3f}",
+        f"2. The business thresholds effectively separate risk levels with bad rates of {bad_rates['approved_bad_rate']:.1%} for approved vs {bad_rates['denied_bad_rate']:.1%} for denied",
+        "3. Consider adjusting thresholds based on business risk appetite and manual review capacity",
+        "4. Monitor model performance regularly and retrain when performance degrades"
+    ]
+    
+    for rec in recommendations:
+        story.append(Paragraph(rec, styles['Normal']))
+        story.append(Spacer(1, 6))
+    
+    # Build PDF
+    doc.build(story)
+    print(f"PDF report generated: {pdf_filename}")
+
 def generate_report(model, X_test, y_test, y_pred_proba, report_dir):
     """Generate comprehensive validation report"""
     y_pred = (y_pred_proba >= 0.5).astype(int)
@@ -357,9 +558,12 @@ def main():
     print("Making predictions...")
     y_pred_proba = model.predict(dtest)
     
-    # Generate report
-    print("Generating validation report...")
+    # Generate reports
+    print("Generating validation reports...")
     generate_report(model, X_test, y_test, y_pred_proba, report_dir)
+    
+    print("Generating PDF report...")
+    generate_pdf_report(model, X_test, y_test, y_pred_proba, report_dir)
 
 if __name__ == "__main__":
     main()
