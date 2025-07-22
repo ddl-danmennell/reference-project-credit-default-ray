@@ -1,0 +1,101 @@
+{
+  "metrics": {
+    "accuracy": 0.7031963470319634,
+    "balanced_accuracy": 0.6066933066933067,
+    "precision": 0.7602339181286549,
+    "recall": 0.8441558441558441,
+    "f1_score": 0.8,
+    "matthews_corrcoef": 0.23564896451672113,
+    "roc_auc": 0.7218781218781218,
+    "average_precision": 0.8616281595894526,
+    "log_loss": 0.6214484431115588,
+    "true_negatives": 24,
+    "false_positives": 41,
+    "false_negatives": 24,
+    "true_positives": 130,
+    "specificity": 0.36923076923076925,
+    "negative_predictive_value": 0.5
+  },
+  "threshold_analysis": [
+    {
+      "threshold": 0.1,
+      "accuracy": 0.7214611872146118,
+      "precision": 0.7203791469194313,
+      "recall": 0.987012987012987,
+      "f1_score": 0.8328767123287671
+    },
+    {
+      "threshold": 0.2,
+      "accuracy": 0.726027397260274,
+      "precision": 0.7281553398058253,
+      "recall": 0.974025974025974,
+      "f1_score": 0.8333333333333334
+    },
+    {
+      "threshold": 0.30000000000000004,
+      "accuracy": 0.7442922374429224,
+      "precision": 0.75,
+      "recall": 0.9545454545454546,
+      "f1_score": 0.84
+    },
+    {
+      "threshold": 0.4,
+      "accuracy": 0.7351598173515982,
+      "precision": 0.7666666666666667,
+      "recall": 0.8961038961038961,
+      "f1_score": 0.8263473053892215
+    },
+    {
+      "threshold": 0.5,
+      "accuracy": 0.7031963470319634,
+      "precision": 0.7602339181286549,
+      "recall": 0.8441558441558441,
+      "f1_score": 0.8
+    },
+    {
+      "threshold": 0.6,
+      "accuracy": 0.6940639269406392,
+      "precision": 0.7701863354037267,
+      "recall": 0.8051948051948052,
+      "f1_score": 0.7873015873015873
+    },
+    {
+      "threshold": 0.7000000000000001,
+      "accuracy": 0.6757990867579908,
+      "precision": 0.7902097902097902,
+      "recall": 0.7337662337662337,
+      "f1_score": 0.7609427609427609
+    },
+    {
+      "threshold": 0.8,
+      "accuracy": 0.6575342465753424,
+      "precision": 0.816,
+      "recall": 0.6623376623376623,
+      "f1_score": 0.7311827956989247
+    },
+    {
+      "threshold": 0.9,
+      "accuracy": 0.6027397260273972,
+      "precision": 0.8681318681318682,
+      "recall": 0.512987012987013,
+      "f1_score": 0.6448979591836734
+    }
+  ],
+  "business_impact": {
+    "distribution": {
+      "approved": 161,
+      "manual_review": 19,
+      "denied": 39
+    },
+    "tier_performance": {
+      "approved_accuracy": 0.7701863354037267,
+      "manual_review_accuracy": 0.3684210526315789,
+      "denied_accuracy": 0.5897435897435898
+    },
+    "bad_rates": {
+      "approved_bad_rate": 0.22981366459627328,
+      "manual_review_bad_rate": 0.26315789473684215,
+      "denied_bad_rate": 0.5897435897435898
+    }
+  }
+}
