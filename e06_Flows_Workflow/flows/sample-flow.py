@@ -22,7 +22,7 @@ def model_training(data_path_a: str, data_path_b: str) -> final_outputs:
 
     To run this flow, execute the following line in the terminal
 
-    pyflyte run --remote /mnt/code/flows/sample-flow.py model_training --data_path_a /mnt/code/data/datasetA.csv --data_path_b /mnt/code/data/datasetB.csv
+    pyflyte run --remote /mnt/code/e06_Flows_Workflow/flows/sample-flow.py model_training --data_path_a /mnt/code/e06_Flows_Workflow/data/datasetA.csv --data_path_b /mnt/code/e06_Flows_Workflow/data/datasetB.csv
 
     :param data_path_a: Path to datasetA
     :param data_path_b: Path to datasetB 
@@ -84,7 +84,7 @@ def model_training(data_path_a: str, data_path_b: str) -> final_outputs:
 
     task5 = run_domino_job_task(
         flyte_task_name='Train Model',
-        command='python /mnt/code/06_Flows_Workflowflows/sample-flow/train-model.py',
+        command='python /mnt/code/06_Flows_Workflow/flows/sample-flow/train-model.py',
         hardware_tier_name='Large',
         inputs=[
             Input(name='processed_data', type=FlyteFile[TypeVar('csv')], value=task4['processed_data']),
