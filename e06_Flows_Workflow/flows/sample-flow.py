@@ -1,4 +1,4 @@
-# pyflyte run --remote /mnt/code/flows/sample-flow.py model_training --data_path_a /mnt/code/data/datasetA.csv --data_path_b /mnt/code/data/datasetB.csv
+# pyflyte run --remote /mnt/code/e06_Flows_Workflow/flows/sample-flow.py model_training --data_path_a /mnt/code/e06_Flows_Workflow/data/datasetA.csv --data_path_b /mnt/code/e06_Flows_Workflow/data/datasetB.csv
 
 
 from flytekitplugins.domino.helpers import Input, Output, run_domino_job_task
@@ -31,7 +31,7 @@ def model_training(data_path_a: str, data_path_b: str) -> final_outputs:
 
     task1 = run_domino_job_task(
         flyte_task_name='Load Data A',
-        command='python /mnt/code/flows/sample-flow/load-data-A.py',
+        command='python /mnt/code/e06_Flows_Workflow/flows/sample-flow/load-data-A.py',
         hardware_tier_name='Small',
         inputs=[
             Input(name='data_path', type=str, value=data_path_a)
@@ -44,7 +44,7 @@ def model_training(data_path_a: str, data_path_b: str) -> final_outputs:
 
     task2 = run_domino_job_task(
         flyte_task_name='Load Data B',
-        command='python /mnt/code/flows/sample-flow/load-data-B.py',
+        command='python /mnt/code/e06_Flows_Workflow/flows/sample-flow/load-data-B.py',
         hardware_tier_name='Small',
         inputs=[
             Input(name='data_path', type=str, value=data_path_b)
@@ -57,7 +57,7 @@ def model_training(data_path_a: str, data_path_b: str) -> final_outputs:
 
     task3 = run_domino_job_task(
         flyte_task_name='Merge Data',
-        command='python /mnt/code/flows/sample-flow/merge-data.py',
+        command='python /mnt/code/e06_Flows_Workflow/flows/sample-flow/merge-data.py',
         hardware_tier_name='Medium',
         inputs=[
             Input(name='datasetA', type=FlyteFile[TypeVar('csv')], value=task1['datasetA']),
@@ -71,7 +71,7 @@ def model_training(data_path_a: str, data_path_b: str) -> final_outputs:
 
     task4 = run_domino_job_task(
         flyte_task_name='Process Data',
-        command='python /mnt/code/flows/sample-flow/process-data.py',
+        command='python /mnt/code/e06_Flows_Workflow/flows/sample-flow/process-data.py',
         hardware_tier_name='Medium',
         inputs=[
             Input(name='merged_data', type=FlyteFile[TypeVar('csv')], value=task3['merged_data'])
@@ -84,7 +84,7 @@ def model_training(data_path_a: str, data_path_b: str) -> final_outputs:
 
     task5 = run_domino_job_task(
         flyte_task_name='Train Model',
-        command='python /mnt/code/flows/sample-flow/train-model.py',
+        command='python /mnt/code/flowse06_Flows_Workflow/sample-flow/train-model.py',
         hardware_tier_name='Large',
         inputs=[
             Input(name='processed_data', type=FlyteFile[TypeVar('csv')], value=task4['processed_data']),

@@ -5,9 +5,9 @@ from flows import read_input, get_output_location
 
 # Argument parser for allowing user to set inputs during location execution
 parser = ArgumentParser(description='Model training script.')
-parser.add_argument('--datasetA', type=str, default='/mnt/code/outputs/datasetA', help='Path to the input data. Only used during local testing. Flow triggered jobs will use task inputs.')
-parser.add_argument('--datasetB', type=str, default='/mnt/code/outputs/datasetB', help='Path to the input data. Only used during local testing. Flow triggered jobs will use task inputs.')
-parser.add_argument('--output_folder', type=str, default='/mnt/code/outputs', help='Path to output results. Only used during local testing. Flow triggered jobs will use task output directory.')
+parser.add_argument('--datasetA', type=str, default='/mnt/code/e06_Flows_Workflow/outputs/datasetA', help='Path to the input data. Only used during local testing. Flow triggered jobs will use task inputs.')
+parser.add_argument('--datasetB', type=str, default='/mnt/code/e06_Flows_Workflow/outputs/datasetB', help='Path to the input data. Only used during local testing. Flow triggered jobs will use task inputs.')
+parser.add_argument('--output_folder', type=str, default='/mnt/code/e06_Flows_Workflow/outputs', help='Path to output results. Only used during local testing. Flow triggered jobs will use task output directory.')
 args = parser.parse_args()
 
 # Read inputs
